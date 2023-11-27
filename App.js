@@ -1,20 +1,37 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+// App.js
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import FontLoader from './Components /Data/FontLoader';
+import SplashScreen from './Components /Splash/SplashScreen'
+import WelcomeScreen from './Components /Welcome /WelcomeScreen';
+import HomeScreen from './Components /Home/HomeScreen';
+import Honesty from './Components /MoralValuesScreen/Honesty/Honesty';
+import Kindness from './Components /MoralValuesScreen/Kindness/Kindness'
+import Cooperation from './Components /MoralValuesScreen/Cooperation/Cooperation';
+import Respect from './Components /MoralValuesScreen/Respect/Respect';
+import Patience from './Components /MoralValuesScreen/Patience/Patience';
 
-export default function App() {
+
+const Stack = createStackNavigator();
+
+const App = () => {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <FontLoader>
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Splash" headerMode="none">
+        <Stack.Screen name="Splash" component={SplashScreen} />
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="WelcomeScreen" component={WelcomeScreen}></Stack.Screen>
+        <Stack.Screen name="Honesty" component={Honesty}></Stack.Screen>
+        <Stack.Screen name="Kindness" component={Kindness}></Stack.Screen>
+        <Stack.Screen name="Cooperation" component={Cooperation}></Stack.Screen>
+        <Stack.Screen name="Respect" component={Respect}></Stack.Screen>
+        <Stack.Screen name="Patience" component={Patience}></Stack.Screen>
+      </Stack.Navigator>
+    </NavigationContainer>
+    </FontLoader>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;
