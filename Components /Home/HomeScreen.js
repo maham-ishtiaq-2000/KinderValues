@@ -19,7 +19,7 @@ const HomeScreen = () => {
     }, []);
   return (
       <ImageBackground 
-          source={require('../../assets/HomeScreen/lightSky.png')} // Replace with your image path
+          source={require('../../assets/HomeScreen/lightSky.webp')} // Replace with your image path
           style={styles.backgroundImage}
           resizeMode="cover"
       >
@@ -43,7 +43,7 @@ const HomeScreen = () => {
                     <View style={styles.selectCategoryKid}>
                     <View style={styles.imageDiv}>
                         <Image
-                            source={require('../../assets/HomeScreen/categorySelectingKid.png')}
+                            source={require('../../assets/HomeScreen/categorySelectingKid.webp')}
                             style={styles.selectCategoryKidImage}
                             resizeMode='contain'
                         />
@@ -51,7 +51,7 @@ const HomeScreen = () => {
                     <View style={styles.titleDiv}>
                         <View style={styles.heading}>
                             <ImageBackground
-                                    source={require('../../assets/HomeScreen/whiteBlueGradient.jpg')} // Replace with your image path
+                                    source={require('../../assets/HomeScreen/whiteBlueGradient.webp')} // Replace with your image path
                                     style={styles.background}
                                     resizeMode="cover"
                             >

@@ -49,16 +49,16 @@ const SplashScreen = () => {
   return (
     <Animated.View style={[styles.container, { opacity: screenOpacity }]}>
       <Animated.Image
-        source={require('../../assets/AnimatedLogo/BoyRunning.png')}
+        source={require('../../assets/AnimatedLogo/BoyRunning.webp')}
         style={[styles.backgroundImage, { opacity: opacity1 }]}
         resizeMode="contain"
       />
       <Animated.Image
-        source={require('../../assets/AnimatedLogo/Grass.png')}
+        source={require('../../assets/AnimatedLogo/Grass.webp')}
         style={[styles.foregroundImage, { opacity: opacity2 }]}
       />
       <Animated.Image
-        source={require('../../assets/AnimatedLogo/Stars.png')}
+        source={require('../../assets/AnimatedLogo/Stars.webp')}
         style={[styles.newImage, { opacity: opacity3 }]}
       />
     </Animated.View>

@@ -1,5 +1,6 @@
 import React, { useState,useRef, useEffect } from 'react';
-import { Animated, StyleSheet, View, ImageBackground, Image, Dimensions, TextInput, Button, Text, ScrollView , TouchableOpacity,KeyboardAvoidingView } from 'react-native';
+import { Animated, StyleSheet, View, ImageBackground, Dimensions, TextInput, Button, Text, ScrollView , TouchableOpacity,KeyboardAvoidingView } from 'react-native';
+import { Image } from 'expo-image';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 
@@ -52,17 +53,17 @@ const WelcomeScreen = () => {
                             keyboardVerticalOffset={-90}>
                             <ScrollView style={styles.scrollViewStyle}>
                             <ImageBackground 
-                                source={require('../../assets/WelcomeScreen/Stars.png')} 
+                                source={require('../../assets/WelcomeScreen/Stars.webp')} 
                                 style={styles.backgroundImage}
                                 resizeMode='cover'
                             />
                                 <Image
-                                    source={require('../../assets/WelcomeScreen/planets.png')}
+                                    source={require('../../assets/WelcomeScreen/planets.webp')}
                                     style={styles.rocketImage}
                                     resizeMode='contain'
                                 />
                                 <Image
-                                    source={require('../../assets/WelcomeScreen/rocket.png')}
+                                    source={require('../../assets/WelcomeScreen/rocket.webp')}
                                     style={styles.planetImage}
                                     resizeMode='contain'
                                 />
@@ -77,7 +78,7 @@ const WelcomeScreen = () => {
                                         />
                                         <TouchableOpacity onPress={handlePress} style={styles.button}>
                                         <ImageBackground
-                                            source={require('../../assets/WelcomeScreen/backgroundGradient.jpg')} // Replace with your image path
+                                            source={require('../../assets/WelcomeScreen/backgroundGradient.webp')} // Replace with your image path
                                             style={styles.background}
                                             resizeMode="cover"
                                         >
@@ -87,7 +88,7 @@ const WelcomeScreen = () => {
                                     
                                 </View>
                                 <Image
-                                    source={require('../../assets/WelcomeScreen/flippedKid.png')}
+                                    source={require('../../assets/WelcomeScreen/flippedKid.webp')}
                                     style={styles.kidImage}
                                     resizeMode='contain'
                                 />

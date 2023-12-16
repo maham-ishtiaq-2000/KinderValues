@@ -1,34 +1,30 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Dimensions, Image, ImageBackground, Button, ScrollView, Animated } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, Image, ImageBackground, Button, ScrollView, Animated,TouchableOpacity } from 'react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
+import { storySlidesArrayData,rightOptionArrayData, wrongOptionArrayData } from './Stories/Data/TheWalletAdventure';
+import { storyHonesty2SlidesArrayData,rightOptionHonesty2ArrayData, wrongOptionHonesty2ArrayData } from './Stories/Data/Honesty2';
 import BackButton from '../../ResusableComponents/BackButton';
+import { useNavigation } from '@react-navigation/native';
 
 
 const moralValuesData = [
   {
     id: '1',
-    imageSource: require('../../../assets/HomeScreen/MoralValuesCategories/Kindness.png'),
-    name: 'Kindness'
+    imageSource: require('../../../assets/HomeScreen/MoralValuesCategories/Kindness.webp'),
+    name: 'Honesty2',
+    title : 'Honesty2',
+    mainArrayData : storyHonesty2SlidesArrayData,
+    rightOptionData : rightOptionHonesty2ArrayData,
+    wrongOptionData : wrongOptionHonesty2ArrayData
   },
   {
     id: '2',
-    imageSource: require('../../../assets/HomeScreen/MoralValuesCategories/Honesty.png'),
-    name: 'Honesty'
-  },
-  {
-    id : '3',
-    imageSource: require('../../../assets/HomeScreen/MoralValuesCategories/respect.png'),
-    name: 'Respect'
-  },
-  {
-      id : '4',
-      imageSource: require('../../../assets/HomeScreen/MoralValuesCategories/cooperation.png'),
-      name: 'Cooperation'
-  },
-  {
-      id : '4',
-      imageSource: require('../../../assets/HomeScreen/MoralValuesCategories/patience.png'),
-      name: 'Patience'
+    imageSource: require('../../../assets/HomeScreen/MoralValuesCategories/Honesty.webp'),
+    name: 'TheWalletAdventure',
+    title : 'TheWalletAdventure',
+    mainArrayData : storySlidesArrayData,
+    rightOptionData : rightOptionArrayData,
+    wrongOptionData : wrongOptionArrayData
   }
 ];
 
@@ -66,9 +62,17 @@ const Honesty = ({ navigation }) => {
 
   const handlePress = () => {
     console.log('Button pressed!');
-    // Add your button press handling logic here
   };
+
   const renderAnimatedItem = (item, index) => {
+    const navigation = useNavigation(); 
+    const navigateToHonestyStory = (item) =>{
+        const mainArrayData = item.mainArrayData
+        const rightOptionData = item.rightOptionData
+        const wrongOptionData = item.wrongOptionData
+        navigation.navigate('NewHonesty' , {mainArrayData , rightOptionData , wrongOptionData});
+
+    }
     return (
       <Animated.View
         key={item.id}
@@ -77,18 +81,24 @@ const Honesty = ({ navigation }) => {
           transform: [{ translateY: animatedValues[index] }]
         }}
       >
-        <Image source={item.imageSource} style={styles.whiteView} resizeMode='contain' />
-        <View style={styles.imageCaption}>
-          <Text style={{ alignSelf: "center", color: "black", fontFamily: 'RobotoSlab_700Bold', fontSize: 15 }}>
-            {item.name}
-          </Text>
-        </View>
+        <TouchableOpacity
+            key={item.id}
+            onPress={() => {navigateToHonestyStory(item)}} // Replace 'Home' with the name of your home screen
+            style={{...styles.itemContainer, transform: [{ translateY: animatedValues[index] }]}}
+          >
+            <Image source={item.imageSource} style={styles.whiteView} resizeMode='contain' />
+            <View style={styles.imageCaption}>
+              <Text style={{ alignSelf: "center", color: "white", fontFamily: 'RobotoSlab_700Bold' }}>
+                {item.name}
+              </Text>
+            </View>
+      </TouchableOpacity>
       </Animated.View>
     );
   };
 
   return (
-    <ImageBackground source={require('../../../assets/HomeScreen/lightSky.png')} style={styles.backgroundImage}>
+    <ImageBackground source={require('../../../assets/HomeScreen/lightSky.webp')} style={styles.backgroundImage}>
       <BackButton navigation={navigation}></BackButton>
       <ScrollView style={styles.scrollView}>
         {moralValuesData.map(renderAnimatedItem)}
@@ -119,7 +129,7 @@ const styles = StyleSheet.create({
   imageCaption : {
     alignSelf : 'center',
     width : width*0.8,
-    backgroundColor : 'rgba(255, 255, 255, 0.7)',
+    backgroundColor : '#3D92D4',
     padding : 10,
     borderBottomLeftRadius: 10, // Adjust radius as needed
     borderBottomRightRadius: 10, 

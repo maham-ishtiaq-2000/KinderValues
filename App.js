@@ -11,7 +11,7 @@ import Kindness from './Components /MoralValuesScreen/Kindness/Kindness'
 import Cooperation from './Components /MoralValuesScreen/Cooperation/Cooperation';
 import Respect from './Components /MoralValuesScreen/Respect/Respect';
 import Patience from './Components /MoralValuesScreen/Patience/Patience';
-
+import HonestyScreen from './Components /MoralValuesScreen/Honesty/Stories/HonestyScreen';
 
 const Stack = createStackNavigator();
 
@@ -28,6 +28,7 @@ const App = () => {
         <Stack.Screen name="Cooperation" component={Cooperation}></Stack.Screen>
         <Stack.Screen name="Respect" component={Respect}></Stack.Screen>
         <Stack.Screen name="Patience" component={Patience}></Stack.Screen>
+        <Stack.Screen name="NewHonesty" component={HonestyScreen}></Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
     </FontLoader>
