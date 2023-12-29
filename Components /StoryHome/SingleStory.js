@@ -1,12 +1,15 @@
 import React from 'react';
 import {View,Text} from 'react-native';
 
-const Cooperation = () =>{
+
+
+
+const SingleStory = () => {
     return(
         <View>
-            <Text>This is the cooperation screen</Text>
+            <Text>SingleStory</Text>
         </View>
     )
 }
 
-export default Cooperation;
+export default SingleStory;

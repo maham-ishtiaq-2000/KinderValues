@@ -4,6 +4,7 @@ import * as ScreenOrientation from 'expo-screen-orientation';
 import { storySlidesArrayData,rightOptionArrayData, wrongOptionArrayData } from './Stories/Data/TheWalletAdventure';
 import { storyHonesty2SlidesArrayData,rightOptionHonesty2ArrayData, wrongOptionHonesty2ArrayData } from './Stories/Data/Honesty2';
 import BackButton from '../../ResusableComponents/BackButton';
+import HomeScreen from '../../Home/HomeScreen';
 import { useNavigation } from '@react-navigation/native';
 
 
@@ -31,7 +32,8 @@ const moralValuesData = [
 
 const { width, height } = Dimensions.get('window');
 
-const Honesty = ({ navigation }) => {
+const Honesty = ({ navigation,route}) => {
+  const storyName = route.params?.storyName;
   const animatedValues = moralValuesData.map(() => new Animated.Value(height)); // Start off-screen
 
   useEffect(() => {
@@ -43,6 +45,16 @@ const Honesty = ({ navigation }) => {
       }
     };
     lockOrientation();
+    const selectedStory = moralValuesData.find((item) => item.name === storyName);
+    if (selectedStory) {
+      const { mainArrayData, rightOptionData, wrongOptionData } = selectedStory;
+      navigation.navigate('NewHonesty', {
+        mainArrayData,
+        rightOptionData,
+        wrongOptionData,
+      });
+    }
+
 
     // Sequentially animate items
     const animations = animatedValues.map(animatedValue => {
@@ -58,7 +70,7 @@ const Honesty = ({ navigation }) => {
     return () => {
       ScreenOrientation.unlockAsync();
     };
-  }, []);
+  }, [navigation,storyName]);
 
   const handlePress = () => {
     console.log('Button pressed!');
@@ -98,12 +110,7 @@ const Honesty = ({ navigation }) => {
   };
 
   return (
-    <ImageBackground source={require('../../../assets/HomeScreen/lightSky.webp')} style={styles.backgroundImage}>
-      <BackButton navigation={navigation}></BackButton>
-      <ScrollView style={styles.scrollView}>
-        {moralValuesData.map(renderAnimatedItem)}
-      </ScrollView>
-    </ImageBackground>
+    <HomeScreen></HomeScreen>
   );
 };
 

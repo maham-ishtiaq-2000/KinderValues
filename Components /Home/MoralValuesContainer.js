@@ -1,95 +1,93 @@
-import React, { useRef,useState, useEffect } from 'react';
-import { View, Image, ScrollView, TouchableOpacity, Dimensions, StyleSheet, Text, Animated } from 'react-native';
+import React, { useRef, useState, useEffect } from 'react';
+import {
+  View,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  Dimensions,
+  StyleSheet,
+  Text,
+  Animated,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { moralValuesData } from './MoralValueData';
 
 const screenWidth = Dimensions.get('window').width;
-const images = moralValuesData
+const screenHeight = Dimensions.get('window').height;
+const images = moralValuesData;
 
+// Modify the styles to arrange two items per row
 const styles = StyleSheet.create({
   scrollViewContainer: {
     position: 'relative',
   },
-  scrollView: {
+  rowContainer: {
     flexDirection: 'row',
+    justifyContent: 'space-evenly'
   },
   imageContainer: {
-    width: screenWidth,
+    width: screenWidth * 0.4, // Adjusted width to fit two items in a row with spacing
+    marginBottom: 20, // Added margin for spacing between rows
     justifyContent: 'center',
     alignItems: 'center',
-    border : 1,
-    borderRadius : 25,
-    overflow: 'hidden'
+    overflow: 'hidden',
   },
   image: {
-    width: screenWidth*0.75,
-    height: screenWidth*0.8, // or some other height as needed
+    width: '100%',
+    height: screenWidth * 0.4, // or some other height as needed
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
-    borderTopLeftRadius: 20,   // No border radius on the top left
-    borderTopRightRadius: 20, 
-    borderWidth : 4,
-    borderColor : 'white'
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    borderWidth: 4,
+    borderColor: 'white',
     // ... other styles
-
-  },
-  arrow: {
-    position: 'absolute',
-    top: '50%',
-    padding: 10,
-    fontSize: 40,
-    color: 'white',
-    backgroundColor: 'rgba(0, 0, 0,0.5)',
-    borderRadius: 15,
-  },
-  leftArrow: {
-    left: 10,
-  },
-  rightArrow: {
-    right: 10,
   },
   titleCategory: {
-    position: 'relative',
-    width: screenWidth * 0.75,
+    width: '100%',
     textAlign: 'center',
     color: 'white',
     padding: 10,
     backgroundColor: '#3D92D4',
-    fontFamily : 'RobotoSlab_500Medium',
-    fontSize: 25,
+    fontFamily: 'RobotoSlab_500Medium',
+    fontSize : 11,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
-    borderTopLeftRadius: 0,   // No border radius on the top left
-    borderTopRightRadius: 0,  // No border radius on the top right
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
     // ... other styles
   },
+  storyCategory:{
+    backgroundColor : '#FF6F61',
+    padding : 5,
+    color : 'white',
+    fontFamily : 'RobotoSlab_500Medium'
+  }
 });
 
 const MoralValuesContainer = () => {
-  const navigation = useNavigation(); 
+  const navigation = useNavigation();
   const scrollViewRef = useRef();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity is 0
-  const translateX = useRef(new Animated.Value(screenWidth)).current; // Start off the right side of the screen
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(screenHeight)).current;
 
   useEffect(() => {
-    // Delay the appearance of the component
     setTimeout(() => {
       Animated.parallel([
         Animated.timing(fadeAnim, {
-          toValue: 1, // Fade in to full opacity
-          duration: 2000, // Duration of fade-in
+          toValue: 1,
+          duration: 2000,
           useNativeDriver: true,
         }),
-        Animated.timing(translateX, {
-          toValue: 0, // Slide in to the final position
-          duration: 2000, // Duration of slide-in
+        Animated.timing(translateY, { // Change from translateX to translateY
+          toValue: 0, // Animate to the top of the screen
+          duration: 2000,
           useNativeDriver: true,
-        })
+        }),
       ]).start();
     }, 2000);
   }, []);
-
 
   const handleScroll = (direction) => {
     let newIndex = currentIndex;
@@ -111,48 +109,63 @@ const MoralValuesContainer = () => {
     setCurrentIndex(newIndex);
   };
 
+  const navigateToHonestyStory = (item) => {
+    const storyName = item.storyName;
+    navigation.navigate('Honesty', { storyName });
+  };
+
+  // Render two items per row inside ScrollView
+  const renderImageRows = () => {
+    const rows = [];
+    for (let i = 0; i < images.length; i += 2) {
+      const rowItems = (
+        <View key={i} style={styles.rowContainer}>
+          {renderImage(images[i])}
+          {i + 1 < images.length && renderImage(images[i + 1])}
+        </View>
+      );
+      rows.push(rowItems);
+    }
+    return rows;
+  };
+
+  const renderImage = (item) => {
+    let backgroundColour;
+    if(item.name == "Kindness"){
+        backgroundColour = "#DC4731"
+    }
+    else if(item.name == "Honesty"){
+      backgroundColour = "#7A871E"
+    }
+    return (
+      <TouchableOpacity
+        key={item.id}
+        style={styles.imageContainer}
+        onPress={() => {
+          navigateToHonestyStory(item);
+        }}
+      >
+        <Text style={[styles.storyCategory, { backgroundColor : backgroundColour }]}>
+          {item.name}
+        </Text>
+        <Image source={item.imageSource} style={styles.image} resizeMode='contain' />
+        <Text style={styles.titleCategory}>{item.storyTitle}</Text>
+      </TouchableOpacity>
+    );
+  };
+  
+
   return (
-    <Animated.View 
-    style={[styles.scrollViewContainer, { opacity: fadeAnim, transform: [{ translateX }] }]}>
-        <View style={styles.scrollViewContainer}>
-        <ScrollView
-          horizontal
-          pagingEnabled
-          ref={scrollViewRef}
-          showsHorizontalScrollIndicator={false}
-          onMomentumScrollEnd={handleOnMomentumScrollEnd}
-          style={styles.scrollView}
-        >
-          {images.map((img, index) => (
-          <TouchableOpacity 
-            key={index} 
-            style={styles.imageContainer}
-            onPress={() => navigation.navigate(img.name)} // Navigate to Home screen
-          >
-            <Image source={img.imageSource} style={styles.image} />
-            <Text style={styles.titleCategory}>{img.name}</Text>
-          </TouchableOpacity>
-        ))}
-        </ScrollView>
-        {currentIndex > 0 && (
-          <TouchableOpacity
-            style={[styles.arrow, styles.leftArrow]}
-            onPress={() => handleScroll('left')}
-          >
-            <Text>{'<'}</Text>
-          </TouchableOpacity>
-        )}
-        {currentIndex < images.length - 1 && (
-          <TouchableOpacity
-            style={[styles.arrow, styles.rightArrow]}
-            onPress={() => handleScroll('right')}
-          >
-            <Text>{'>'}</Text>
-          </TouchableOpacity>
-        )}
-      </View>
+    <Animated.View style={[styles.scrollViewContainer, { opacity: fadeAnim, transform: [{ translateY }] }]}>
+      <ScrollView
+        ref={scrollViewRef}
+        showsHorizontalScrollIndicator={false}
+        onMomentumScrollEnd={handleOnMomentumScrollEnd}
+        style={styles.scrollView}
+      >
+        {renderImageRows()}
+      </ScrollView>
     </Animated.View>
-   
   );
 };
 

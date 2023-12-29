@@ -60,12 +60,12 @@ const WelcomeScreen = () => {
                                 <Image
                                     source={require('../../assets/WelcomeScreen/planets.webp')}
                                     style={styles.rocketImage}
-                                    resizeMode='contain'
+                                    contentFit='contain'
                                 />
                                 <Image
                                     source={require('../../assets/WelcomeScreen/rocket.webp')}
                                     style={styles.planetImage}
-                                    resizeMode='contain'
+                                    contentFit='contain'
                                 />
                                 <View style={styles.nameInputBox}>
                                     <Text style={styles.welcomeText}>WELCOME</Text>

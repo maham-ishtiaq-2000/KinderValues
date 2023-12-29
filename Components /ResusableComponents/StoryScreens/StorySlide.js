@@ -1,9 +1,14 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
-import { Modal, View, Dimensions, StyleSheet, Text, TouchableOpacity, Button } from 'react-native';
+import { View, Dimensions, StyleSheet, Text, TouchableOpacity, ActivityIndicator, Animated } from 'react-native';
 import { Image } from 'expo-image';
+import { BlurView } from 'expo-blur';
+import Modal from 'react-native-modal';
 import Swiper from 'react-native-swiper';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { useNavigation } from '@react-navigation/native';
+import LoadingScreen from './LoadingScreen';
+import StartScreenModals from './StartScreenModals';
+import EndScreenModals from './EndScreenModals';
 
 
 const screenWidth = Dimensions.get('window').width;
@@ -11,22 +16,34 @@ const screenHeight = Dimensions.get('window').height;
 
 
 
-const PrevButton = () => (
-    <Text style={[styles.button, { left: 0.01 }]}>&lsaquo;</Text>
+const PrevButton = ({style}) => (
+    <Image 
+        style={style}
+        source={require('../../../assets/MoralValues/prevArrowFinal.webp')} 
+        contentFit='contain'
+    />
 );
 
-const NextButton = () => (
-    <Text style={[styles.button, { right: 0.01 }]}>&rsaquo;</Text>
+const NextButton = ({style}) => (
+    <Image 
+        style={style}
+        source={require('../../../assets/MoralValues/nextArrowFinal.webp')}
+        contentFit='contain'
+    />
 );
+
 
 const StorySlide = ({storySlidesArrayData,rightOptionSlidesData,wrongOptionSlidesData}) => {
   const storySlidesArray = storySlidesArrayData
   const rightOptionSlides = rightOptionSlidesData
   const wrongOptionSlides = wrongOptionSlidesData
   const navigation = useNavigation(); 
+  const fadeIn = useRef(new Animated.Value(0)).current;
+  const [isLoading, setIsLoading] = useState(true);
     const [activeSwiper, setActiveSwiper] = useState('main');
     const [showModal, setShowModal] = useState(false);
-    const [containerColor, setContainerColor] = useState("blue");
+    const [showStartModal, setShowStartModal] = useState(true);
+    const [containerColor, setContainerColor] = useState("#37B6FF");
     const [currentIndex, setCurrentIndex] = useState(0);
     const swiperRef = useRef(null);
     const [dimensions, setDimensions] = useState({
@@ -37,6 +54,46 @@ const StorySlide = ({storySlidesArrayData,rightOptionSlidesData,wrongOptionSlide
       modalWidth: Dimensions.get('window').width * 0.7,
       modalHeight: Dimensions.get('window').height * 0.7,
   });
+  const closeStartModal = () =>{
+    setShowStartModal(false)
+  }
+  const renderBlurredBackground = () => {
+    if (!showStartModal) return null;
+    return (
+      <BlurView
+        style={StyleSheet.absoluteFill} // Make sure it covers the whole screen
+        intensity={100} // Adjust the intensity of the blur
+        tint="default" 
+      />
+    );
+  };
+  
+  const renderStartModal = () => (
+    <Modal
+      isVisible={showStartModal}
+      onBackdropPress={() => setShowStartModal(false)}
+      onBackButtonPress={() => setShowStartModal(false)}
+      animationIn="slideInUp"
+      animationOut="slideOutDown"
+      animationInTiming={3000} // 3000 milliseconds for a slower animation
+      animationOutTiming={3000}
+      backdropOpacity={0} // Set to 0 since the BlurView is used
+    >
+      <View style={styles.centeredView}>
+        <View style={[dynamicModalStyle]}>
+        <TouchableOpacity onPress={closeStartModal} style={styles.closeButton}>
+                <Text style={styles.closeButtonText}>X</Text>
+            </TouchableOpacity>
+          {showStartModal && (
+            <StartScreenModals closeStartModal={closeStartModal} />
+          )}
+        </View>
+      </View>
+    </Modal>
+  );
+  
+
+
   const [modalDimensions, setModalDimensions] = useState(getModalDimensions());
 
   // Function to reset the component
@@ -48,6 +105,7 @@ const StorySlide = ({storySlidesArrayData,rightOptionSlidesData,wrongOptionSlide
    
 
     useEffect(() => {
+        // Lock the screen orientation to landscape
         const lockOrientation = async () => {
             try {
                 await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
@@ -55,30 +113,46 @@ const StorySlide = ({storySlidesArrayData,rightOptionSlidesData,wrongOptionSlide
                 console.error("Failed to lock orientation:", e);
             }
         };
-        const updateModalDimensions = () => {
-          setModalDimensions({
-              modalWidth: Dimensions.get('window').width * 0.7,
-              modalHeight: Dimensions.get('window').height * 0.7,
-          });
-      };
-
-      // Update the dimensions initially and on screen resize
-      updateModalDimensions();
-
-        lockOrientation();
-         // Update modal dimensions whenever screen dimensions change
-      const subscription = Dimensions.addEventListener('change', ({ window }) => {
-          setDimensions({ screenWidth: window.width, screenHeight: window.height });
-          updateModalDimensions();
-      });
-
     
+        // Update modal dimensions
+        const updateModalDimensions = () => {
+            setModalDimensions({
+                modalWidth: Dimensions.get('window').width * 0.7,
+                modalHeight: Dimensions.get('window').height * 0.7,
+            });
+        };
+    
+        // Simulate data fetching
+        const fetchData = async () => {
+            try {
+                // Replace this with your actual data fetching logic
+                await new Promise(resolve => setTimeout(resolve, 5000)); // Simulated delay
+                setIsLoading(false); // Set loading to false once data is fetched
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                setIsLoading(false); // Ensure loading is set to false in case of error
+            }
+        };
 
+        fetchData();
+        lockOrientation();
+        updateModalDimensions();
+    
+        // Update modal dimensions and unlock orientation when screen dimensions change
+        const subscription = Dimensions.addEventListener('change', ({ window }) => {
+            setDimensions({ screenWidth: window.width, screenHeight: window.height });
+            updateModalDimensions();
+        });
+    
+        // Cleanup function
         return () => {
             subscription?.remove();
             ScreenOrientation.unlockAsync();
         };
     }, []);
+
+
+    
 
     const key = dimensions.screenWidth + dimensions.screenHeight;
     const dynamicSlideStyle = {
@@ -114,9 +188,8 @@ const StorySlide = ({storySlidesArrayData,rightOptionSlidesData,wrongOptionSlide
       if (currentSlideId === 'endScreen') {
         console.log('"endScreen" is called');
         // Set a timer to show the modal after 1 second
-        setTimeout(() => setShowModal(true), 1000);
+        setTimeout(() => navigation.navigate('EndScreen'), 1000);
     }
-  
       setCurrentIndex(index);
   };
   
@@ -142,57 +215,72 @@ const StorySlide = ({storySlidesArrayData,rightOptionSlidesData,wrongOptionSlide
     resizeMode: 'contain'
 }), [modalDimensions]);
 
-const resetComponent = () => {
-  console.log("ALLAH U AKBAR")
-};
 
 
-  const renderModal = () => (
+const renderModal = () => (
     <Modal
-        animationType="slide"
-        transparent={true}
-        visible={showModal}
+        isVisible={showModal}
+        onBackdropPress={() => setShowModal(false)}
+        onBackButtonPress={() => setShowModal(false)}
         animationIn="slideInUp"
         animationOut="slideOutDown"
-        animationInTiming={5000}  // 1000 milliseconds for a slower animation
-        animationOutTiming={5000}
-        onRequestClose={() => setShowModal(false)}
+        animationInTiming={3000}
+        animationOutTiming={3000}
+        backdropOpacity={0.7}
+        style={styles.fullScreenModalContainer}
     >
-        <View style={styles.centeredView}>
-            <View style={[styles.modalView, dynamicModalStyle]}>
-                <TouchableOpacity  onPress={() => navigation.navigate('Honesty')}>
-                    <Image 
-                        style={dynamicImageStyle} 
-                        source={require('../../../assets/endScreen/GoHome.webp')} 
-                    />
-                </TouchableOpacity>
-                <TouchableOpacity  onPress={() => navigation.navigate('Honesty')}>
-                    <Image 
-                        style={dynamicImageStyle} 
-                        source={require('../../../assets/endScreen/PlayAgain.webp')} 
-                    />
-                </TouchableOpacity>
-            </View>
+        <View style={styles.fullScreenModal}>
+            <TouchableOpacity onPress={closeStartModal} style={styles.closeButton}>
+                <Text style={styles.closeButtonText}>X</Text>
+            </TouchableOpacity>
+            {showModal && (
+                <StartScreenModals closeStartModal={closeStartModal} />
+            )}
         </View>
     </Modal>
-  );
+);
+
   
 
+  const FadeSlide = ({ children, style }) => {
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+  
+    useEffect(() => {
+      Animated.timing(
+        fadeAnim,
+        {
+          toValue: 1,
+          duration: 1500,
+          useNativeDriver: true,
+        }
+      ).start();
+    }, [fadeAnim]);
+  
+    return (
+      <Animated.View style={{ ...style, opacity: fadeAnim }}>
+        {children}
+      </Animated.View>
+    );
+  };
+  
+  
 
   const renderSwiper = (slides) => (
     <Swiper
-        style={{ height: dimensions.screenHeight }}
-        showsButtons={true}
-        ref={swiperRef}
-        loop={false}
-        showsPagination={false}
-        onIndexChanged={handleIndexChanged}
-        prevButton={<PrevButton />}
-        nextButton={<NextButton />}
-    >
+    style={{ height: dimensions.screenHeight }}
+    showsButtons={true}
+    loop={false}
+    showsPagination={false}
+    onIndexChanged={handleIndexChanged}
+    prevButton={<PrevButton style={styles.prevButtonStyle}/>}
+    nextButton={<NextButton style={styles.nextButtonStyle}/>}
+    scrollEnabled={false}
+    fade={true}
+   >
         {slides.map((slide, index) => (
-                        <View 
+                        <FadeSlide 
                         key={slide.id} 
+                        slide={slide}
                         style={[
                             styles.slide, 
                             dynamicSlideStyle,
@@ -208,7 +296,7 @@ const resetComponent = () => {
                              <Image
                                  source={slide.optionAImageSource}
                                  style={styles.optionImage}
-                                 resizeMode="contain"
+                                 contentFit="contain"
                              />
                          </TouchableOpacity>
                          <TouchableOpacity onPress={() => handleOptionPress('B')} style={[styles.option, { backgroundColor: '#FB8DA0' }]}>
@@ -217,7 +305,7 @@ const resetComponent = () => {
                              <Image
                                  source={slide.optionBImageSource}
                                  style={styles.optionImage}
-                                 resizeMode="contain"
+                                 contentFit="contain"
                              />
                          </TouchableOpacity>
                      </View>
@@ -228,7 +316,7 @@ const resetComponent = () => {
                      </View>
                 ) : (
                     <>
-                        <Image source={slide.imageSource} style={styles.image} resizeMode="cover" />
+                        <Image source={slide.imageSource} style={styles.image} contentFit="cover" />
                         {slide.description ? (
                               <View style={styles.textContainer}>
                                   <Text style={[styles.textStyle , {color : 'black'}]}>{slide.description}</Text>
@@ -236,21 +324,40 @@ const resetComponent = () => {
                           ) : null}
                     </>
                 )}
-            </View>
+            </FadeSlide>
         ))}
     </Swiper>
 );
 
-   
-
-  return (
-      <View style={[styles.container, { backgroundColor: containerColor }]} onLayout={onLayout}>
-          {activeSwiper === 'main' && renderSwiper(storySlidesArray)}
-          {activeSwiper === 'right' && renderSwiper(rightOptionSlides)}
-          {activeSwiper === 'wrong' && renderSwiper(wrongOptionSlides)}
-          {renderModal()}
-      </View>
+  // Modify the loading screen to use Animated.View
+  const renderLoadingScreen = () => (
+    <Animated.View
+      style={{
+        ...styles.centered,
+        transform: [{ translateY: loadingScreenPosition }], // Apply the animated value
+      }}>
+      <Text>Loading...</Text>
+    </Animated.View>
   );
+
+return (
+    <View style={[styles.container , {backgroundColor : containerColor}]} onLayout={onLayout}>
+      {isLoading ? <LoadingScreen screenHeight={screenHeight} backgroundColor="red"></LoadingScreen> : (
+          <>
+          <View style={{backgroundColor : containerColor}}>
+                {activeSwiper === 'main' && renderSwiper(storySlidesArray)}
+                {activeSwiper === 'right' && renderSwiper(rightOptionSlides)}
+                {activeSwiper === 'wrong' && renderSwiper(wrongOptionSlides)}
+                {renderBlurredBackground()}
+                {renderStartModal()}
+                {renderModal()}
+          </View>
+      </>
+      )}
+    </View>
+);
+
+    
 };
 
 const styles = StyleSheet.create({
@@ -325,42 +432,65 @@ const styles = StyleSheet.create({
       marginBottom : '1%',
       color : 'white'
   },
-  button: {
-      position: 'absolute', // Position the button absolutely within its container
-      color: 'white',
-      fontSize: 80,
-      top: '50%', // Adjust the vertical position as needed
-      zIndex: 10, // Make sure the button is above other elements
-      transform: [{ translateY: -50 }],
-  },
+  prevButtonStyle: {
+    width: 60, // adjust the width
+    height: 60, // adjust the height
+    },
+    nextButtonStyle: {
+        width: 60, // adjust the width
+        height: 60, // adjust the height
+        // other styling as needed
+    },
   centeredView: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  modalView: {
-    margin: 20,
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    paddingTop : 30,
-    borderRadius: 20,
-    borderWidth : 5,
-    borderColor : 'grey',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 4,
-    // Remove width and height from here, as they will be dynamically set
-},
   imageStyle: {
     marginTop : 10,
     resizeMode: 'contain',
-  }
+  },
+  helloTextStyle: {
+    fontSize: 24, // Adjust font size as needed
+    color: 'black', // Adjust text color as needed
+    marginBottom: 20, // Space below the text
+    // Other styling as needed
+    },
+    closeButton: {
+        position: 'absolute',
+        top: 30,
+        right: 30,
+        backgroundColor: '#E5E4E2', // Optional: style as needed
+        borderRadius: 5,
+        borderWidth: 3, // Specify the border width
+        borderColor: 'green', // Specify the border color
+        padding: 2,
+        width: 30,
+        justifyContent : 'center',
+        alignItems : 'center',
+        zIndex: 1, // Make sure it's above other elements
+    },
+    closeButtonText: {
+        fontSize: 16,
+        color: '#F28C28', // Choose color as needed
+        justifyContent : 'center',
+        fontWeight : 'bold'
+    },
+    fullScreenModalContainer: {
+        flex: 1,
+        width: '100%', 
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    fullScreenModal: {
+        width: '100%',
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center'
+        // Add other styling as needed
+    },
  
 });
 
-export default StorySlide;
+export default StorySlide; 
